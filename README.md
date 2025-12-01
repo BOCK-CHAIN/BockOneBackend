@@ -101,7 +101,7 @@ psql --version
 <p>Replace &lt;USERNAME&gt;, &lt;PASSWORD&gt;, &lt;RDS-ENDPOINT&gt;, &lt;DBNAME&gt;:</p>
 
 <pre>
-psql "postgresql://<USERNAME>:<PASSWORD>@<RDS-ENDPOINT>:5432/<DBNAME>"
+psql "postgresql://&lt;USERNAME&gt;:&lt;PASSWORD&g>@&lt;RDS-ENDPOINT&gt;:5432/&lt;DBNAME&gt;"
 </pre>
 
 <h3>Create Users Table:</h3>
