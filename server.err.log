@@ -1,0 +1,22 @@
+Sign in error: TypeError: Cannot destructure property 'email' of 'req.body' as it is undefined.
+    at signIn (C:\Bock Internship\backups\3-3-26\BockOneUI\BockDocsBackend\controllers\authController.js:75:13)
+    at Layer.handleRequest (C:\Bock Internship\backups\3-3-26\BockOneUI\BockDocsBackend\node_modules\router\lib\layer.js:152:17)
+    at next (C:\Bock Internship\backups\3-3-26\BockOneUI\BockDocsBackend\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\Bock Internship\backups\3-3-26\BockOneUI\BockDocsBackend\node_modules\router\lib\route.js:117:3)
+    at handle (C:\Bock Internship\backups\3-3-26\BockOneUI\BockDocsBackend\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\Bock Internship\backups\3-3-26\BockOneUI\BockDocsBackend\node_modules\router\lib\layer.js:152:17)
+    at C:\Bock Internship\backups\3-3-26\BockOneUI\BockDocsBackend\node_modules\router\index.js:295:15
+    at processParams (C:\Bock Internship\backups\3-3-26\BockOneUI\BockDocsBackend\node_modules\router\index.js:582:12)
+    at next (C:\Bock Internship\backups\3-3-26\BockOneUI\BockDocsBackend\node_modules\router\index.js:291:5)
+    at Function.handle (C:\Bock Internship\backups\3-3-26\BockOneUI\BockDocsBackend\node_modules\router\index.js:186:3)
+Sign in error: TypeError: Cannot destructure property 'email' of 'req.body' as it is undefined.
+    at signIn (C:\Bock Internship\backups\3-3-26\BockOneUI\BockDocsBackend\controllers\authController.js:75:13)
+    at Layer.handleRequest (C:\Bock Internship\backups\3-3-26\BockOneUI\BockDocsBackend\node_modules\router\lib\layer.js:152:17)
+    at next (C:\Bock Internship\backups\3-3-26\BockOneUI\BockDocsBackend\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\Bock Internship\backups\3-3-26\BockOneUI\BockDocsBackend\node_modules\router\lib\route.js:117:3)
+    at handle (C:\Bock Internship\backups\3-3-26\BockOneUI\BockDocsBackend\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\Bock Internship\backups\3-3-26\BockOneUI\BockDocsBackend\node_modules\router\lib\layer.js:152:17)
+    at C:\Bock Internship\backups\3-3-26\BockOneUI\BockDocsBackend\node_modules\router\index.js:295:15
+    at processParams (C:\Bock Internship\backups\3-3-26\BockOneUI\BockDocsBackend\node_modules\router\index.js:582:12)
+    at next (C:\Bock Internship\backups\3-3-26\BockOneUI\BockDocsBackend\node_modules\router\index.js:291:5)
+    at Function.handle (C:\Bock Internship\backups\3-3-26\BockOneUI\BockDocsBackend\node_modules\router\index.js:186:3)
