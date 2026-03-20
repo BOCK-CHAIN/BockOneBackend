@@ -1,0 +1,163 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Enums
+enum FileType {
+  FILE
+  FOLDER
+}
+
+enum UploadStatus {
+  PENDING
+  UPLOADING
+  COMPLETED
+  FAILED
+}
+
+// Models
+model User {
+  id              String   @id @default(cuid())
+  email           String   @unique
+  name            String?
+  password        String?
+  profilePicture  String?
+  isEmailVerified Boolean  @default(false)
+  
+  // Storage settings
+  storageQuota    BigInt   @default(5368709120) // 5GB default
+  
+  // Auth tokens
+  refreshToken    String?
+  
+  // Timestamps
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  lastLoginAt     DateTime?
+  
+  // Relations
+  folders         Folder[]
+  files           File[]
+  uploadSessions  UploadSession[]
+  
+  @@map("users")
+}
+
+model Folder {
+  id          String   @id @default(cuid())
+  name        String
+  parentId    String?
+  userId      String
+  
+  // Folder metadata
+  color       String?
+  description String?
+  
+  // Status flags
+  isStarred   Boolean  @default(false)
+  isInTrash   Boolean  @default(false)
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  trashedAt   DateTime?
+  
+  // Relations
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent      Folder?  @relation("FolderHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
+  children    Folder[] @relation("FolderHierarchy")
+  files       File[]
+  
+  // Indexes
+  @@index([userId])
+  @@index([parentId])
+  @@index([userId, parentId])
+  @@index([isInTrash])
+  @@map("folders")
+}
+
+model File {
+  id          String   @id @default(cuid())
+  name        String
+  originalName String
+  mimeType    String
+  size        BigInt
+  
+  // Local file storage path
+  filePath    String   @unique
+  
+  // File organization
+  folderId    String?
+  userId      String
+  
+  // File metadata
+  checksum    String?
+  thumbnail   String?
+  
+  // Status flags
+  isStarred   Boolean  @default(false)
+  isInTrash   Boolean  @default(false)
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  trashedAt   DateTime?
+  lastAccessedAt DateTime?
+  
+  // Relations
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  folder      Folder?  @relation(fields: [folderId], references: [id], onDelete: Cascade)
+  
+  // Indexes
+  @@index([userId])
+  @@index([folderId])
+  @@index([userId, folderId])
+  @@index([isInTrash])
+  @@index([filePath])
+  @@map("files")
+}
+
+
+
+
+
+
+
+model UploadSession {
+  id          String       @id @default(cuid())
+  userId      String
+  fileName    String
+  fileSize    BigInt?
+  mimeType    String?
+  folderId    String?
+  
+  // Local file storage path
+  filePath    String?
+  
+  // Upload status
+  status      UploadStatus @default(PENDING)
+  progress    Float        @default(0)
+  errorMessage String?
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  completedAt DateTime?
+  
+  // Relations
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Indexes
+  @@index([userId])
+  @@index([status])
+  @@map("upload_sessions")
+}

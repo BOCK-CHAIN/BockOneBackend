@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: bockdrive_db
+    environment:
+      POSTGRES_USER: bockuser
+      POSTGRES_PASSWORD: bockpassword
+      POSTGRES_DB: bockdrive
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  api:
+    build: .
+    container_name: bockdrive_api
+    ports:
+      - "3001:3001"
+    environment:
+      - DATABASE_URL=postgresql://bockuser:bockpassword@postgres:5432/bockdrive?schema=public
+      - JWT_SECRET=dev-secret-key-change-this-in-production-min-32-chars
+      - PORT=3001
+    depends_on:
+      - postgres
+    volumes:
+      - ./uploads:/app/uploads
+
+volumes:
+  postgres_data:
