@@ -1,8 +1,108 @@
-<h1 align="center">🚀 Bock One Backend – Deployment Guide</h1>
+<h1 align="center">🚀 Bock One Backend – Deployment & Local Setup Guide</h1>
 
 <p align="center">
-  Follow this guide to deploy the Bock One Backend using 
+  Follow this guide to run the Bock One Backend <strong>locally</strong> or to deploy it using
   <strong>AWS S3 + CloudFront</strong>, <strong>RDS PostgreSQL</strong>, and <strong>EC2</strong>.
+</p>
+
+<hr>
+
+<h2>💻 Local Development Setup</h2>
+
+<h3>Prerequisites</h3>
+<ul>
+  <li><a href="https://nodejs.org/">Node.js LTS</a></li>
+  <li><a href="https://www.postgresql.org/">PostgreSQL</a> (local instance or a cloud DB)</li>
+  <li>AWS credentials (or a local S3-compatible service like <a href="https://min.io/">MinIO</a>)</li>
+  <li>Git</li>
+</ul>
+
+<h3>1. Clone the repository</h3>
+<pre>
+git clone https://github.com/BOCK-CHAIN/BockOneBackend.git
+cd BockOneBackend
+</pre>
+
+<h3>2. Install dependencies</h3>
+<pre>
+npm install
+</pre>
+
+<h3>3. Configure environment variables</h3>
+<p>Copy <code>.env</code> and fill in your values:</p>
+<pre>
+DATABASE_URL='postgresql://&lt;USERNAME&gt;:&lt;PASSWORD&gt;@localhost:5432/&lt;DBNAME&gt;'
+
+AWS_ACCESS_KEY_ID=your_key_id
+AWS_SECRET_ACCESS_KEY=your_secret_key
+AWS_REGION=us-east-1
+AWS_S3_BUCKET=your_bucket_name
+
+CLOUDFRONT_URL=https://your-distribution.cloudfront.net
+</pre>
+
+<h3>4. Create the database table</h3>
+<pre>
+psql "postgresql://&lt;USERNAME&gt;:&lt;PASSWORD&gt;@localhost:5432/&lt;DBNAME&gt;"
+</pre>
+<pre>
+CREATE TABLE users (
+  id SERIAL PRIMARY KEY,
+  username VARCHAR(100) UNIQUE NOT NULL,
+  password TEXT NOT NULL,
+  first_name VARCHAR(100),
+  last_name VARCHAR(100),
+  dob DATE,
+  gender VARCHAR(20),
+  hex_id VARCHAR(100),
+  profile_photo TEXT,
+  created_at TIMESTAMP DEFAULT now()
+);
+\q
+</pre>
+
+<h3>5. Start the server</h3>
+<pre>
+node server.js
+</pre>
+<p>The API will be available at <code>http://localhost:3000</code>.</p>
+
+<hr>
+
+<h2>📥 Downloading Files from Bock Drive to Your Local PC</h2>
+
+<p>
+  Bock Drive stores files in AWS S3. Use the <strong>/api/drive</strong> endpoints to list and
+  download files directly to your local PC.
+</p>
+
+<h3>List files in Bock Drive</h3>
+<pre>
+GET /api/drive/list
+GET /api/drive/list?prefix=profiles/
+</pre>
+<p>Returns a JSON array of file objects with <code>key</code>, <code>size</code>, and <code>lastModified</code> fields.</p>
+
+<h3>Download a file to your local PC</h3>
+<pre>
+GET /api/drive/download?key=&lt;s3-object-key&gt;
+</pre>
+<p>
+  The file is streamed directly to the caller as an attachment.<br>
+  Example – download using <strong>curl</strong>:
+</p>
+<pre>
+curl -OJ "http://localhost:3000/api/drive/download?key=profiles/1234567890_myfile.vala"
+</pre>
+<p>
+  Example – download using <strong>wget</strong>:
+</p>
+<pre>
+wget -O myfile.vala "http://localhost:3000/api/drive/download?key=profiles/1234567890_myfile.vala"
+</pre>
+<p>
+  You can obtain the <code>key</code> value from the <code>/api/drive/list</code> endpoint or from
+  the <code>key</code> field returned when a file was originally uploaded.
 </p>
 
 <hr>
@@ -101,7 +201,7 @@ psql --version
 <p>Replace &lt;USERNAME&gt;, &lt;PASSWORD&gt;, &lt;RDS-ENDPOINT&gt;, &lt;DBNAME&gt;:</p>
 
 <pre>
-psql "postgresql://&lt;USERNAME&gt;:&lt;PASSWORD&g>@&lt;RDS-ENDPOINT&gt;:5432/&lt;DBNAME&gt;"
+psql "postgresql://&lt;USERNAME&gt;:&lt;PASSWORD&gt;@&lt;RDS-ENDPOINT&gt;:5432/&lt;DBNAME&gt;"
 </pre>
 
 <h3>Create Users Table:</h3>
