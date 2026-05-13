@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bock-backend-config
+  namespace: bock
+  labels:
+    app: bock-backend
+data:
+  NODE_ENV: production
+  PORT: "3000"
+  AWS_REGION: ap-south-1
+  AWS_S3_BUCKET: your-s3-bucket
+  CLOUDFRONT_URL: your-cloudfront-domain.cloudfront.net
+  # AWS RDS connection (non-sensitive part)
+  DB_HOST: your-db-host
+  DB_PORT: "5432"
+  DB_NAME: postgres
+  DB_USER: postgres
