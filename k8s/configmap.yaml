@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: eira-backend-config
+  namespace: bock
+data:
+  NODE_ENV: production
+  PORT: "8080"
+  DB_PORT: "5432"
