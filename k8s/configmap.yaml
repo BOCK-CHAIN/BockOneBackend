@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: orventus-backend-config
+  namespace: bock
+data:
+  # =============================================================================
+  # ENVIRONMENT CONFIGURATION
+  # =============================================================================
+  NODE_ENV: "production"
+  PORT: "3000"
+
+  # =============================================================================
+  # FRONTEND URLS - Update these when frontend URLs change
+  # =============================================================================
+  FRONTEND_URL_DEV: "http://localhost:65372"
+  FRONTEND_URL_PROD: "https://orventus-472112.web.app"
+  CORS_ORIGINS: "http://localhost:65372,http://localhost:3000,https://orventus-472112.web.app"

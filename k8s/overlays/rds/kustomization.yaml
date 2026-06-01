@@ -1,0 +1,19 @@
+# =============================================================================
+# RDS KUSTOMIZATION
+# =============================================================================
+# >>> This kustomization builds the app for AWS RDS
+# =============================================================================
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: bock
+
+commonLabels:
+  variant: rds
+
+bases:
+  - ../../
+
+patchesStrategicMerge:
+  - secret.yaml

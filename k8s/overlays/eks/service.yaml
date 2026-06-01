@@ -1,0 +1,24 @@
+# =============================================================================
+# EKS LOAD BALANCER SERVICE
+# =============================================================================
+# >>> Use this service type for AWS EKS with LoadBalancer
+# =============================================================================
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: orventus-backend
+  namespace: bock
+  annotations:
+    # AWS ALB health check path
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-path: /api/v1/misc/health
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-port: "3000"
+spec:
+  type: LoadBalancer
+  selector:
+    app: orventus-backend
+  ports:
+  - port: 80
+    targetPort: 3000
+    protocol: TCP

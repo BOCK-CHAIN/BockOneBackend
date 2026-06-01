@@ -1,0 +1,58 @@
+# =============================================================================
+# ORVENTUS BACKEND DEPLOYMENT
+# =============================================================================
+# >>> To switch between k8s postgres and AWS RDS, edit secret.yaml
+# =============================================================================
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orventus-backend
+  namespace: bock
+  labels:
+    app: orventus-backend
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: orventus-backend
+  template:
+    metadata:
+      labels:
+        app: orventus-backend
+    spec:
+      containers:
+      - name: orventus-backend
+        # >>> CHANGE IMAGE TAG here or in secret.yaml for different versions
+        image: madhavkeshava/orventus-backend:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
+          name: http
+        env:
+        - name: ORVENTUS_DEFAULT_OTP
+          value: "123456"
+        envFrom:
+        - configMapRef:
+            name: orventus-backend-config
+        - secretRef:
+            name: orventus-backend-secrets
+        readinessProbe:
+          tcpSocket:
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: http
+          initialDelaySeconds: 20
+          periodSeconds: 20
+        resources:
+          requests:
+            cpu: "50m"
+            memory: "64Mi"
+          limits:
+            cpu: "200m"
+            memory: "256Mi"

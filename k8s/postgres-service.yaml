@@ -1,0 +1,19 @@
+# =============================================================================
+# POSTGRES SERVICE
+# =============================================================================
+# >>> KEEP when using k8s postgres
+# >>> DELETE when switching to AWS RDS
+# =============================================================================
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: bock
+spec:
+  type: ClusterIP
+  selector:
+    app: postgres
+  ports:
+  - port: 5432
+    targetPort: 5432

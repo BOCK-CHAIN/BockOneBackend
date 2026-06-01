@@ -1,0 +1,19 @@
+# =============================================================================
+# POSTGRES PERSISTENT VOLUME
+# =============================================================================
+# >>> KEEP when using k8s postgres
+# >>> DELETE when switching to AWS RDS
+# =============================================================================
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pv
+  namespace: bock
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: standard

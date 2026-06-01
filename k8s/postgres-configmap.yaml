@@ -1,0 +1,20 @@
+# =============================================================================
+# POSTGRES KUBERNETES MANIFEST
+# =============================================================================
+# >>> KEEP THESE FILES when using k8s postgres
+# >>> DELETE these files when switching to AWS RDS:
+#       - postgres-deployment.yaml
+#       - postgres-service.yaml
+#       - postgres-configmap.yaml
+#       - postgres-secret.yaml
+#       - postgres-pv.yaml
+# =============================================================================
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-config
+  namespace: bock
+data:
+  POSTGRES_DB: "orventus_db"
+  POSTGRES_USER: "orventus_user"
