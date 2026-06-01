@@ -1,0 +1,120 @@
+══════════════════════════════════════════════════════════
+      BockDrive — S3 Cloud Integration Test Suite
+      Target: http://localhost:3001
+══════════════════════════════════════════════════════════
+
+🔧 Setup — Register and Login
+     Storage mode: s3 ✓
+  ✅ Server is reachable
+     User: s3test_1775797297847@example.com (cmnsfv0t4000vijrw4h0skpi2)
+  ✅ Register test user
+     Folder ID: cmnsfv0zc000zijrwuuvyitmy
+  ✅ Create a test folder
+
+☁️  S3 File Uploads
+     File ID: cmnsfv1ad0013ijrwmbhvyb8a
+     S3 Key: users/cmnsfv0t4000vijrw4h0skpi2/files/82ad19e0-96fb-4ba9-b6ba-791b4afebe66/test_upload.txt
+     CloudFront URL: https://d3dp0lcbvrqlg8.cloudfront.net/users/cmnsfv0t4000vijrw4h0skpi2/files/82ad19e0-96fb-4ba9-b6ba-791b4afebe66/test_upload.txt
+  ✅ Upload single text file to S3
+     Image S3 key: users/cmnsfv0t4000vijrw4h0skpi2/files/615b049a-c158-42dc-9e82-e5033be5119c/test_image.png
+  ✅ Upload PNG image to S3 in folder
+     Storage: 88 B → 158 B
+  ✅ Storage quota increased after uploads
+     Uploaded 2 files: test_upload.txt, test_data.json
+  ✅ Upload multiple files at once
+
+🔑 Presigned URL (Direct Client Upload) Flow
+     Presigned URL: https://bock-s3.s3.ap-south-1.amazonaws.com/users/cmnsfv0t4000vijrw4h0skpi2/f...
+     S3 Key: users/cmnsfv0t4000vijrw4h0skpi2/files/fdd9cf0a-e045-4693-b85a-ec527d0b7633/presigned_test.txt
+  ✅ GET presigned upload URL from server
+     S3 PUT response: 200 ✓
+  ✅ PUT file bytes directly to S3 via presigned URL
+     Confirmed file ID: cmnsfv28p001fijrwlsklke76
+     CloudFront URL: https://d3dp0lcbvrqlg8.cloudfront.net/users/cmnsfv0t4000vijrw4h0skpi2/files/fdd9cf0a-e045-4693-b85a-ec527d0b7633/presigned_test.txt
+  ✅ Confirm presigned upload to register file in DB
+
+⬇️  Presigned Download URL & Access
+     Download URL (first 80 chars): https://bock-s3.s3.ap-south-1.amazonaws.com/users/cmnsfv0t4000vijrw4h0skpi2/f...
+  ✅ GET presigned download URL for uploaded file
+     Downloaded 88 bytes ✓
+  ✅ Presigned download URL is actually accessible (GET from S3)
+     File name: test_upload.txt
+     MIME type: text/plain
+     Size: 88 bytes
+  ✅ GET file metadata from DB
+
+🔍 File Search
+     Found 2 file(s) for "test_upload"
+       - test_upload.txt (88 bytes)
+       - test_upload.txt (88 bytes)
+  ✅ Search files by name (partial match)
+     Found 3 text files
+  ✅ Search files with MIME type filter
+     Found 5 files in folder
+  ✅ Search files inside specific folder
+  ✅ Search returns empty for non-existent term
+     5 recent files
+     Most recent: "test_upload.txt"
+  ✅ List recently added files
+     3 files in test folder
+  ✅ List files in test folder
+
+🔗 File Sharing (Cloud)
+     Share token: cmnsfv3d3001lijrw6f38gliq
+     Share link: http://localhost:3001/api/v1/shares/access/cmnsfv3d3001lijrw6f38gliq
+  ✅ Create public share link for uploaded file
+     Shared file name: "test_upload.txt"
+     File size: 88 bytes
+     Download URL via share: https://bock-s3.s3.ap-south-1.amazonaws.com/users/cmnsfv0...
+  ✅ Access shared file via public token (unauthenticated)
+     Downloaded 88 bytes via share ✓
+  ✅ Download shared file via presigned URL (actual HTTP GET)
+     Folder share token: cmnsfv3u0001rijrwwgpcyec6
+     Expires: 2026-04-11T05:01:42.256Z
+  ✅ Create folder share link
+     Folder: "S3 Test Folder" with 3 files
+  ✅ Access shared folder shows all files inside
+     Total shares created: 2
+  ✅ List my shares
+     Access count: 2 → 3 ✓
+  ✅ Share access counter increments
+  ✅ Revoke share link
+     Revoked share correctly returns 404 ✓
+  ✅ Revoked share returns 410 or 404
+
+📝 File Operations on Cloud Files
+     New name: renamed_test_1775797297847.txt
+  ✅ Rename uploaded file
+  ✅ Star a file
+     1 starred file(s)
+  ✅ Starred file appears in starred list
+  ✅ Move file to trash
+     1 file(s) in trash
+  ✅ Trashed file appears in trash list
+  ✅ Restore file from trash
+     Deleted: "File deleted successfully"
+  ✅ Delete file (removes from S3 and DB)
+  ✅ Deleted file no longer accessible
+
+💾 Storage Quota Verification
+     Used: 332 B
+     Limit: 5.00 GB (free plan)
+     Usage: 0.00%
+  ✅ Storage quota reflects uploaded files
+     Before recalc: 332 B
+     After recalc: 332 B
+     Recalc result: 332 B
+  ✅ Recalculate storage is consistent
+
+🧹 Cleanup
+     Deleted 2 files from S3 + DB
+  ✅ Delete all test files
+     Folder deleted
+  ✅ Delete test folder
+
+══════════════════════════════════════════════════════════
+         Results: 40 passed, 0 failed
+══════════════════════════════════════════════════════════
+
+🎉 All S3 cloud integration tests passed!
+

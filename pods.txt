@@ -1,0 +1,6 @@
+NAME                                        READY   STATUS    RESTARTS          AGE     IP            NODE       NOMINATED NODE   READINESS GATES
+bockdrive-backend-6499969fb9-b6gj6          1/1     Running   0                 2m29s   10.244.1.97   minikube   <none>           <none>
+cassandra-0                                 0/1     Running   443 (3m30s ago)   48d     10.244.1.91   minikube   <none>           <none>
+mongo-express-deployment-7f69d6b9fb-855cp   1/1     Running   11 (4m56s ago)    47d     10.244.1.95   minikube   <none>           <none>
+mongodb-deployment-5fff9cb8cd-gflkc         0/1     Error     13 (114s ago)     47d     10.244.1.81   minikube   <none>           <none>
+mysql-8f77c977-8sn6c                        1/1     Running   14 (4m56s ago)    47d     10.244.1.83   minikube   <none>           <none>

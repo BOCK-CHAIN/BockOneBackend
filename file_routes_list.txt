@@ -1,0 +1,16 @@
+35:router.get('/', authenticateToken, async (req, res) => {
+68:router.get('/starred', authenticateToken, async (req, res) => {
+87:router.get('/recent', authenticateToken, async (req, res) => {
+106:router.get('/search', authenticateToken, async (req, res) => {
+145:router.get('/trash', authenticateToken, async (req, res) => {
+160:router.get('/:id', authenticateToken, async (req, res) => {
+171:router.get('/:id/url', authenticateToken, async (req, res) => {
+197:router.get('/:id/versions', authenticateToken, async (req, res) => {
+218:router.patch('/:id/rename', authenticateToken, validateBody(schemas.renameItem), async (req, res) => {
+239:router.patch('/:id/star', authenticateToken, async (req, res) => {
+252:router.patch('/:id/trash', authenticateToken, async (req, res) => {
+272:router.patch('/:id/restore', authenticateToken, async (req, res) => {
+292:router.delete('/trash', authenticateToken, async (req, res) => {
+322:router.delete('/:id', authenticateToken, async (req, res) => {
+354:router.get('/proxy/:fileId', authenticateToken, async (req, res) => {
+387:router.get('/download/:fileId', authenticateToken, async (req, res) => {

@@ -1,0 +1,11 @@
+node_modules
+npm-debug.log
+.git
+.env
+uploads
+generated
+server_output.txt
+test_results.txt
+s3_test_results.txt
+dbpush*.txt
+generate_result*.txt

@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  api:
+    build: .
+    container_name: bockdrive_api
+    ports:
+      - "3001:3001"
+    env_file: .env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      - DATABASE_URL=postgresql://bockdrive_user:Bock7892@bockdb.cdo8cys6ugtx.ap-south-1.rds.amazonaws.com:5432/bockdrive_db?schema=public&sslmode=verify-full&sslrootcert=/certs/global-bundle.pem
+      - JWT_SECRET=dev-secret-key-change-this-in-production-min-32-chars
+      - PORT=3001
+    volumes:
+      - ./uploads:/app/uploads

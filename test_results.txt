@@ -1,0 +1,77 @@
+═══════════════════════════════════════════════════
+        BockDrive API - Full Test Suite
+        Target: http://localhost:3001
+═══════════════════════════════════════════════════
+
+📋 Health & API Info
+  ✅ GET /health returns OK
+  ✅ GET /api returns API info
+
+🔐 Authentication
+  ✅ POST /api/v1/auth/register – create new user
+  ✅ POST /api/v1/auth/register – duplicate email rejected
+  ✅ POST /api/v1/auth/register – validation error for short password
+  ✅ POST /api/v1/auth/login – valid credentials
+  ✅ POST /api/v1/auth/login – wrong password rejected
+  ✅ GET /api/v1/auth/me – returns current user
+  ✅ GET /api/v1/auth/me – no token rejected
+  ✅ POST /api/v1/auth/forgot-password – returns 200 always
+  ✅ POST /api/v1/auth/refresh – missing body returns 401
+
+👤 Profile
+  ✅ GET /api/v1/profile – get own profile
+  ✅ PUT /api/v1/profile – update name
+
+📁 Folders
+  ✅ POST /api/v1/folders – create root folder
+  ✅ POST /api/v1/folders – duplicate name rejected
+  ✅ GET /api/v1/folders – list root folders
+  ✅ GET /api/v1/folders/:id – get folder
+  ✅ PATCH /api/v1/folders/:id – rename folder
+  ✅ PATCH /api/v1/folders/:id/star – star folder
+  ✅ GET /api/v1/folders/:id/path – breadcrumb
+
+💾 Storage
+  ✅ GET /api/v1/storage/quota – returns quota info
+  ✅ GET /api/v1/storage/plans – list plans
+  ✅ POST /api/v1/storage/upgrade – upgrade to pro
+  ✅ POST /api/v1/storage/upgrade – invalid plan rejected
+
+🔗 Shares
+  ✅ POST /api/v1/shares – create public folder share
+  ✅ GET /api/v1/shares – list my shares
+  ✅ GET /api/v1/shares/with-me – items shared with me
+  ✅ GET /api/v1/shares/access/:token – public access
+  ✅ PUT /api/v1/shares/:id – update permission
+  ✅ DELETE /api/v1/shares/:id – revoke share
+
+📄 File Operations (DB-level, no actual upload)
+  ✅ GET /api/v1/files – list files in root
+  ✅ GET /api/v1/files/starred – starred files
+  ✅ GET /api/v1/files/recent – recent files
+  ✅ GET /api/v1/files/search?q=test – search files
+  ✅ GET /api/v1/files/trash – list trashed files
+  ✅ GET /api/v1/files/nonexistent – 404 for missing file
+
+🗑️  Trash Operations
+  ✅ PATCH /api/v1/folders/:id/trash – move folder to trash
+  ✅ PATCH /api/v1/folders/:id/restore – restore folder
+
+🛡️  Admin (Expected 403 – test user is not admin)
+  ✅ GET /api/v1/admin/users – non-admin gets 403
+  ✅ GET /api/v1/admin/stats – non-admin gets 403
+
+🔄 Backward-Compatible Legacy Routes
+  ✅ POST /api/auth/login – legacy route still works
+  ✅ GET /api/files – legacy files route still works
+  ✅ GET /api/folders – legacy folders route still works
+
+🚪 Logout
+  ✅ POST /api/v1/auth/logout – successful logout
+
+═══════════════════════════════════════════════════
+         Results: 44 passed, 0 failed
+═══════════════════════════════════════════════════
+
+🎉 All tests passed!
+

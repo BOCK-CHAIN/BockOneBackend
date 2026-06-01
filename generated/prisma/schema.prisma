@@ -1,0 +1,248 @@
+// BockDrive - Full Prisma Schema
+// Source of truth. DO NOT edit generated/prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum UploadStatus {
+  PENDING
+  UPLOADING
+  COMPLETED
+  FAILED
+}
+
+enum PermissionLevel {
+  view
+  edit
+  comment
+}
+
+enum PlanType {
+  free
+  pro
+  business
+}
+
+enum UserRole {
+  user
+  admin
+}
+
+// ─── Models ───────────────────────────────────────────────────────────────────
+
+model User {
+  id       String  @id @default(cuid())
+  email    String  @unique
+  name     String?
+  password String?
+  hexId    String? @unique
+
+  role UserRole @default(user)
+
+  // Profile
+  profilePicture      String?
+  profilePictureS3Key String?
+
+  // Storage
+  storageQuota BigInt   @default(5368709120)
+  storageUsed  BigInt   @default(0)
+  planType     PlanType @default(free)
+
+  // Auth
+  refreshToken        String?
+  passwordResetToken  String?
+  passwordResetExpiry DateTime?
+  isEmailVerified     Boolean   @default(false)
+  mfaEnabled          Boolean   @default(false)
+
+  // Timestamps
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  lastLoginAt DateTime?
+
+  // Relations
+  folders        Folder[]
+  files          File[]
+  uploadSessions UploadSession[]
+  sharesCreated  Share[]         @relation("ShareCreator")
+  sharesReceived Share[]         @relation("ShareReceived")
+  auditLogs      AuditLog[]
+  fileVersions   FileVersion[]
+
+  @@index([email])
+  @@index([hexId])
+  @@map("users")
+}
+
+model Folder {
+  id       String  @id @default(cuid())
+  name     String
+  parentId String?
+  userId   String
+
+  color       String?
+  description String?
+  isStarred   Boolean @default(false)
+  isInTrash   Boolean @default(false)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  trashedAt DateTime?
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent   Folder?  @relation("FolderHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
+  children Folder[] @relation("FolderHierarchy")
+  files    File[]
+  shares   Share[]  @relation("FolderShare")
+
+  @@index([userId])
+  @@index([parentId])
+  @@index([userId, parentId])
+  @@index([isInTrash])
+  @@map("folders")
+}
+
+model File {
+  id           String @id @default(cuid())
+  name         String
+  originalName String
+  mimeType     String
+  size         BigInt
+
+  filePath      String?
+  s3Key         String?
+  cloudFrontUrl String?
+
+  folderId String?
+  userId   String
+
+  checksum     String?
+  thumbnail    String?
+  versionCount Int     @default(1)
+
+  isStarred Boolean @default(false)
+  isInTrash Boolean @default(false)
+
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  trashedAt      DateTime?
+  lastAccessedAt DateTime?
+
+  user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  folder   Folder?       @relation(fields: [folderId], references: [id], onDelete: SetNull)
+  shares   Share[]       @relation("FileShare")
+  versions FileVersion[]
+
+  @@index([userId])
+  @@index([folderId])
+  @@index([userId, folderId])
+  @@index([isInTrash])
+  @@index([s3Key])
+  @@map("files")
+}
+
+model FileVersion {
+  id            String  @id @default(cuid())
+  fileId        String
+  versionNumber Int
+  s3Key         String
+  size          BigInt
+  createdById   String
+  isCurrent     Boolean @default(false)
+  label         String?
+
+  createdAt DateTime @default(now())
+
+  file      File @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  createdBy User @relation(fields: [createdById], references: [id])
+
+  @@index([fileId])
+  @@index([fileId, versionNumber])
+  @@map("file_versions")
+}
+
+model Share {
+  id               String  @id @default(cuid())
+  fileId           String?
+  folderId         String?
+  sharedByUserId   String
+  sharedWithUserId String?
+  sharedWithEmail  String?
+
+  permissionLevel PermissionLevel @default(view)
+  shareToken      String          @unique @default(cuid())
+  isPublic        Boolean         @default(false)
+
+  expiresAt   DateTime?
+  isRevoked   Boolean   @default(false)
+  accessCount Int       @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  file       File?   @relation("FileShare", fields: [fileId], references: [id], onDelete: Cascade)
+  folder     Folder? @relation("FolderShare", fields: [folderId], references: [id], onDelete: Cascade)
+  sharedBy   User    @relation("ShareCreator", fields: [sharedByUserId], references: [id])
+  sharedWith User?   @relation("ShareReceived", fields: [sharedWithUserId], references: [id])
+
+  @@index([fileId])
+  @@index([folderId])
+  @@index([sharedByUserId])
+  @@index([sharedWithUserId])
+  @@index([shareToken])
+  @@map("shares")
+}
+
+model AuditLog {
+  id           String  @id @default(cuid())
+  userId       String
+  action       String
+  resourceType String
+  resourceId   String?
+  metadata     Json    @default("{}")
+  ipAddress    String?
+  userAgent    String?
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([action])
+  @@map("audit_logs")
+}
+
+model UploadSession {
+  id           String       @id @default(cuid())
+  userId       String
+  fileName     String
+  fileSize     BigInt?
+  mimeType     String?
+  folderId     String?
+  s3Key        String?
+  filePath     String?
+  status       UploadStatus @default(PENDING)
+  progress     Float        @default(0)
+  errorMessage String?
+  uploadId     String?
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  completedAt DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@map("upload_sessions")
+}
