@@ -403,6 +403,38 @@ kubectl get rolebindings -n bock
 
 ---
 
+## ⚙️ Deployment Configuration
+
+### Dockerfile
+
+The Dockerfile uses a `node:20-alpine` base image. It copies `package*.json` and runs `npm ci --omit=dev` for a lean production build, then copies the application source. Port `3001` is exposed and `NODE_ENV=production` is set.
+
+### Kubernetes Manifests (`k8s/`)
+
+The deployment includes:
+- **ConfigMap** — environment configuration
+- **Secret** — Supabase and JWT credentials
+- **Deployment** — HTTP health probes (startup, readiness, liveness), resource limits, and strategy
+- **Service, HPA, Ingress** — routing, auto-scaling, and external access
+
+### ⚠️ Deployment Strategy: Recreate
+
+Currently all deployments use `strategy.type: Recreate`, which **terminates all existing pods before creating new ones**. This causes downtime during updates and is only suitable for **testing/development**.
+
+**For production deployments, change to `RollingUpdate`:**
+
+```yaml
+strategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxUnavailable: 1
+    maxSurge: 1
+```
+
+This ensures **zero-downtime deployments** by gradually replacing pods while keeping the service available.
+
+---
+
 ## 📚 Additional Resources
 
 - [Docker Documentation](https://docs.docker.com/)
