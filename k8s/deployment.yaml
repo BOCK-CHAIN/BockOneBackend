@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bockfoods-backend
+  namespace: bock
+  labels:
+    app: bockfoods-backend
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: bockfoods-backend
+  template:
+    metadata:
+      labels:
+        app: bockfoods-backend
+    spec:
+      containers:
+      - name: bockfoods-backend
+        image: madhavkeshava/bockfoods-backend:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
+          name: http
+        envFrom:
+        - configMapRef:
+            name: bockfoods-backend-config
+        - secretRef:
+            name: bockfoods-backend-secrets
+        readinessProbe:
+          tcpSocket:
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: http
+          initialDelaySeconds: 20
+          periodSeconds: 20
+        resources:
+          requests:
+            cpu: "50m"
+            memory: "64Mi"
+          limits:
+            cpu: "200m"
+            memory: "256Mi"
