@@ -492,6 +492,39 @@ kubectl get rolebindings -n bock
 
 ---
 
+## ⚙️ Deployment Configuration
+
+### Dockerfile
+
+The Dockerfile uses a `node:20-alpine` base image. It copies `server/package*.json` separately for dependency caching, installs production-only deps (`npm ci --omit=dev`), generates the Prisma client, and sets `NODE_ENV=production`. Port `5000` is exposed.
+
+### Kubernetes Manifests (`k8s/`)
+
+The deployment includes:
+- **ConfigMap** — environment configuration
+- **Secret** — database and API credentials
+- **Deployment** — TCP socket probes, resource limits, and strategy
+- **Volume mounts** — AWS RDS CA bundle at `/certs` and a configMap injecting a server fix at `/app/server/server.js`
+- **Service, HPA, Ingress** — routing, scaling, and external access
+
+### ⚠️ Deployment Strategy: Recreate
+
+Currently all deployments use `strategy.type: Recreate`, which **terminates all existing pods before creating new ones**. This causes downtime during updates and is only suitable for **testing/development**.
+
+**For production deployments, change to `RollingUpdate`:**
+
+```yaml
+strategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxUnavailable: 1
+    maxSurge: 1
+```
+
+This ensures **zero-downtime deployments** by gradually replacing pods while keeping the service available.
+
+---
+
 ## 📚 Additional Resources
 
 - [Docker Documentation](https://docs.docker.com/)
