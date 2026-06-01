@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: golligog-backend
+  namespace: bock
+  labels:
+    app: golligog-backend
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: golligog-backend
+  template:
+    metadata:
+      labels:
+        app: golligog-backend
+    spec:
+      containers:
+      - name: golligog-backend
+        image: madhavkeshava/golligog-backend:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 5000
+          name: http
+        envFrom:
+        - configMapRef:
+            name: golligog-backend-config
+        - secretRef:
+            name: golligog-backend-secrets
+        volumeMounts:
+        - name: aws-rds-ca-bundle
+          mountPath: /certs
+          readOnly: true
+        - name: golligog-server-fix
+          mountPath: /app/server/server.js
+          subPath: golligog-server.js
+        readinessProbe:
+          tcpSocket:
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: http
+          initialDelaySeconds: 20
+          periodSeconds: 20
+        resources:
+          requests:
+            cpu: "50m"
+            memory: "64Mi"
+          limits:
+            cpu: "200m"
+            memory: "256Mi"
+      volumes:
+      - name: aws-rds-ca-bundle
+        configMap:
+          name: aws-rds-ca-bundle
+      - name: golligog-server-fix
+        configMap:
+          name: golligog-server-fix
+          defaultMode: 420

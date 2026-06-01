@@ -1,0 +1,14 @@
+node_modules
+server/node_modules
+__pycache__
+*.pyc
+.pytest_cache
+.env
+.env.*
+.git
+.gitignore
+Dockerfile
+.dockerignore
+coverage
+logs
+*.log
