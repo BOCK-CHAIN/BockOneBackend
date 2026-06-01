@@ -343,6 +343,37 @@ kubectl get rolebindings -n bock
 
 ---
 
+## ⚙️ Deployment Configuration
+
+### Dockerfile
+
+The backend uses a **multi-stage Go build** — stage 1 compiles the binary with `golang:1.22-alpine`, stage 2 runs it in a minimal `alpine:3.20` image. The frontend uses a standard Next.js Docker build with Node.js.
+
+### Kubernetes Manifests (`k8s/`)
+
+Two separate deployments:
+- **Backend** — Go binary on port 9000 with HTTP health probes, resource limits
+- **Frontend** — Next.js app on port 3000 with 2 replicas, larger resource allocation
+- Each includes ConfigMaps, Secrets, Services, HPAs, and Ingress
+
+### ⚠️ Deployment Strategy: Recreate
+
+Currently all deployments use `strategy.type: Recreate`, which **terminates all existing pods before creating new ones**. This causes downtime during updates and is only suitable for **testing/development**.
+
+**For production deployments, change to `RollingUpdate`:**
+
+```yaml
+strategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxUnavailable: 1
+    maxSurge: 1
+```
+
+This ensures **zero-downtime deployments** by gradually replacing pods while keeping the service available.
+
+---
+
 ## 📚 Additional Resources
 
 - [Docker Documentation](https://docs.docker.com/)
