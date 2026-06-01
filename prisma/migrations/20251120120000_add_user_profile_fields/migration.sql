@@ -1,0 +1,6 @@
+-- Add optional name and timestamps to User table
+ALTER TABLE "User"
+ADD COLUMN "name" TEXT,
+ADD COLUMN "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ADD COLUMN "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
+

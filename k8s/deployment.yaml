@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bockdocs-backend
+  namespace: bock
+  labels:
+    app: bockdocs-backend
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: bockdocs-backend
+  template:
+    metadata:
+      labels:
+        app: bockdocs-backend
+    spec:
+      containers:
+      - name: bockdocs-backend
+        image: madhavkeshava/bockdocs-backend:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 5050
+        envFrom:
+        - configMapRef:
+            name: bockdocs-config
+        - secretRef:
+            name: bockdocs-secrets
+        startupProbe:
+          httpGet:
+            path: /api/docs/health
+            port: 5050
+          failureThreshold: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /api/docs/health
+            port: 5050
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /api/docs/health
+            port: 5050
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        resources:
+          requests:
+            cpu: "50m"
+            memory: "64Mi"
+          limits:
+            cpu: "200m"
+            memory: "256Mi"

@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: bockdocs-ingress
+  namespace: bock
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: bockdocs.local
+    http:
+      paths:
+      - path: /api/auth
+        pathType: Prefix
+        backend:
+          service:
+            name: bockdocs-backend-svc
+            port:
+              number: 5050
+      - path: /api/documents
+        pathType: Prefix
+        backend:
+          service:
+            name: bockdocs-backend-svc
+            port:
+              number: 5050
