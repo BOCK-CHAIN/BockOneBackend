@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ruviel-backend
+  namespace: bock
+  labels:
+    app: ruviel-backend
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: ruviel-backend
+  template:
+    metadata:
+      labels:
+        app: ruviel-backend
+    spec:
+      containers:
+      - name: ruviel-backend
+        image: madhavkeshava/ruviel-backend:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3001
+          name: http
+        envFrom:
+        - configMapRef:
+            name: ruviel-backend-config
+        - secretRef:
+            name: ruviel-backend-secrets
+        startupProbe:
+          httpGet:
+            path: /api/ruviel/health
+            port: http
+          failureThreshold: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /api/ruviel/health
+            port: http
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /api/ruviel/health
+            port: http
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        resources:
+          requests:
+            cpu: "50m"
+            memory: "64Mi"
+          limits:
+            cpu: "200m"
+            memory: "256Mi"
