@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bocksheets-config
+  namespace: bock
+data:
+  NODE_ENV: production
+  PORT: "3000"
+  DB_PORT: "5432"
+  ALLOWED_ORIGINS: "http://localhost,http://127.0.0.1"
