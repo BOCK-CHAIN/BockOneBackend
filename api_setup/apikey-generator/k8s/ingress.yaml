@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: map-api-keygen-ingress
+  namespace: demo
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /api/map-keys
+            pathType: Prefix
+            backend:
+              service:
+                name: map-api-keygen-svc
+                port:
+                  number: 3000

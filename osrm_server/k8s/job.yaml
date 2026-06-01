@@ -1,0 +1,85 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: osrm-preprocess
+  namespace: bock
+spec:
+  ttlSecondsAfterFinished: 604800
+  template:
+    spec:
+      restartPolicy: Never
+      initContainers:
+        - name: download-clip-pbf
+          image: osrm/osrm-backend:v5.25.0
+          command:
+            - sh
+            - -c
+            - |
+              set -e
+              if [ -f /data/bengaluru.osrm ]; then
+                echo "OSRM data already exists, skipping preprocessing"
+                exit 0
+              fi
+              echo "Installing osmium-tool..."
+              apt-get update && apt-get install -y osmium-tool wget && rm -rf /var/lib/apt/lists/*
+              echo "Downloading Southern Zone PBF..."
+              wget --progress=dot:giga -O /data/southern-zone-latest.osm.pbf \
+                "https://download.geofabrik.de/asia/india/southern-zone-latest.osm.pbf"
+              echo "Clipping Bengaluru metro region..."
+              osmium extract \
+                -b 77.35,12.75,77.85,13.35 \
+                /data/southern-zone-latest.osm.pbf \
+                -o /data/bengaluru.osm.pbf
+              echo "Removing full zone PBF..."
+              rm -f /data/southern-zone-latest.osm.pbf
+              echo "Bengaluru PBF ready: $(ls -lh /data/bengaluru.osm.pbf | awk '{print $5}')"
+          volumeMounts:
+            - name: osrm-data
+              mountPath: /data
+          resources:
+            requests:
+              cpu: 1000m
+              memory: 1Gi
+            limits:
+              cpu: 2000m
+              memory: 2Gi
+      containers:
+        - name: osrm-process
+          image: osrm/osrm-backend:v5.25.0
+          command:
+            - sh
+            - -c
+            - |
+              set -e
+              if [ -f /data/bengaluru.osrm ]; then
+                echo "OSRM data already exists, skipping preprocessing"
+                exit 0
+              fi
+              if [ ! -f /data/bengaluru.osm.pbf ]; then
+                echo "ERROR: Bengaluru PBF file not found!"
+                exit 1
+              fi
+              echo "Running osrm-extract..."
+              osrm-extract -p /opt/car.lua /data/bengaluru.osm.pbf
+              echo "Running osrm-partition..."
+              osrm-partition /data/bengaluru.osrm
+              echo "Running osrm-customize..."
+              osrm-customize /data/bengaluru.osrm
+              echo "Cleaning up raw PBF..."
+              rm -f /data/bengaluru.osm.pbf
+              echo "Preprocessing complete! Files:"
+              ls -lh /data/bengaluru.osrm*
+          volumeMounts:
+            - name: osrm-data
+              mountPath: /data
+          resources:
+            requests:
+              cpu: 1000m
+              memory: 2Gi
+            limits:
+              cpu: 2000m
+              memory: 4Gi
+      volumes:
+        - name: osrm-data
+          persistentVolumeClaim:
+            claimName: osrm-data-pvc

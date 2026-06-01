@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bockmaps-mapserver
+  namespace: bock
+  labels:
+    app: bockmaps-mapserver
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: bockmaps-mapserver
+  template:
+    metadata:
+      labels:
+        app: bockmaps-mapserver
+    spec:
+      containers:
+        - name: bockmaps-mapserver
+          image: madhavkeshava/bockmaps-mapserver:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3001
+          envFrom:
+            - configMapRef:
+                name: bockmaps-mapserver-config
+            - secretRef:
+                name: bockmaps-mapserver-secrets
+          volumeMounts:
+            - name: aws-rds-ca-bundle
+              mountPath: /certs
+              readOnly: true
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3001
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3001
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+      volumes:
+        - name: aws-rds-ca-bundle
+          configMap:
+            name: aws-rds-ca-bundle

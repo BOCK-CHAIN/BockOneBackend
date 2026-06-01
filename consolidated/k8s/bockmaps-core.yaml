@@ -1,0 +1,105 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bockmaps-core
+  namespace: bock
+  labels:
+    app: bockmaps-core
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bockmaps-core
+  template:
+    metadata:
+      labels:
+        app: bockmaps-core
+    spec:
+      containers:
+        - name: redis
+          image: redis:7-alpine
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 6379
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+        - name: apikey-generator
+          image: madhavkeshava/map-api-keygen:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: PORT
+              value: "3000"
+            - name: REDIS_URL
+              value: "redis://localhost:6379"
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+        - name: openresty
+          image: openresty/openresty:alpine
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: openresty-config
+              mountPath: /usr/local/openresty/nginx/conf/nginx.conf
+              subPath: nginx.conf
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+        - name: tileserver-gl
+          image: maptiler/tileserver-gl:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8084
+          env:
+            - name: PORT
+              value: "8084"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+      volumes:
+        - name: openresty-config
+          configMap:
+            name: map-openresty-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bockmaps-core-svc
+  namespace: bock
+  labels:
+    app: bockmaps-core
+spec:
+  type: ClusterIP
+  selector:
+    app: bockmaps-core
+  ports:
+    - name: keygen
+      port: 3000
+      targetPort: 3000
+      protocol: TCP
+    - name: openresty
+      port: 8081
+      targetPort: 80
+      protocol: TCP
