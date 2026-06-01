@@ -322,6 +322,38 @@ kubectl get rolebindings -n bock
 
 ---
 
+## ⚙️ Deployment Configuration
+
+### Dockerfiles
+
+The mapserver uses a `node:20-bookworm-slim` base image with `NODE_ENV=production`, installs only production dependencies (`npm ci --omit=dev`), and includes a Docker `HEALTHCHECK` instruction. OSRM uses the official `osrm/osrm-backend:v5.25.0` image, and Nominatim uses a custom Python-based image.
+
+### Kubernetes Manifests (`k8s/`)
+
+Multiple deployments exist for the service mesh:
+- **mapserver** — Node.js API with HTTP probes, RDS SSL cert volume mount
+- **osrm_server** — OSRM routing engine with PVC for data, larger resource limits
+- **nominatim_server** — Geocoding service
+- Each includes ConfigMaps, Secrets, Services, HPAs, and Ingress
+
+### ⚠️ Deployment Strategy: Recreate
+
+Currently all deployments use `strategy.type: Recreate`, which **terminates all existing pods before creating new ones**. This causes downtime during updates and is only suitable for **testing/development**.
+
+**For production deployments, change to `RollingUpdate`:**
+
+```yaml
+strategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxUnavailable: 1
+    maxSurge: 1
+```
+
+This ensures **zero-downtime deployments** by gradually replacing pods while keeping the service available.
+
+---
+
 ## 📚 Additional Resources
 
 - [Docker Documentation](https://docs.docker.com/)
