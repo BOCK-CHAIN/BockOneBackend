@@ -1,0 +1,9 @@
+.git
+.gitignore
+frontend/node_modules
+frontend/.next
+frontend/out
+Dockerfile
+.dockerignore
+tmp
+*.log

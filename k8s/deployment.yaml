@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bockvote-backend
+  namespace: bock
+  labels:
+    app: bockvote-backend
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: bockvote-backend
+  template:
+    metadata:
+      labels:
+        app: bockvote-backend
+    spec:
+      containers:
+      - name: bockvote-backend
+        image: madhavkeshava/bockvote-backend:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 9000
+          name: http
+        envFrom:
+        - configMapRef:
+            name: bockvote-backend-config
+        - secretRef:
+            name: bockvote-backend-secrets
+        startupProbe:
+          httpGet:
+            path: /api/vote/health
+            port: http
+          failureThreshold: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /api/vote/health
+            port: http
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /api/vote/health
+            port: http
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        resources:
+          requests:
+            cpu: "50m"
+            memory: "64Mi"
+          limits:
+            cpu: "200m"
+            memory: "256Mi"

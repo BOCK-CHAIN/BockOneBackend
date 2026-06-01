@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bockvote-frontend-config
+  namespace: demo
+data:
+  NODE_ENV: production
+  PORT: "3000"
+  NEXT_PUBLIC_API_BASE_URL: /api/bockvote
+  BOCKVOTE_API_INTERNAL_URL: http://bockvote-backend-svc:9000
